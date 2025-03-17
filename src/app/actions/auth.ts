@@ -4,7 +4,7 @@ import {
   login,
   registrar,
   verificarEmailCadastrado,
-} from "@/app/services/authService";
+} from "@/services/authService";
 
 // Função de Login
 export const handleLogin = async (email: string, senha: string) => {

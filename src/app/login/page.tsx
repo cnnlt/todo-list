@@ -19,27 +19,17 @@ import { useRouter } from "next/navigation";
 import {
   handleLogin as serverHandleLogin,
   handleRegistro as serverHandleRegistro,
-  verificarEmailCadastrado,
-} from "@/app/actions/auth.ts";
+} from "@/app/actions/auth";
 
 export default function TabsDemo() {
   const router = useRouter();
-  // Estados para o Login
   const [loginEmail, setLoginEmail] = useState<string>("");
   const [loginSenha, setLoginSenha] = useState<string>("");
-
-  // Estados para o Registro
   const [registroEmail, setRegistroEmail] = useState<string>("");
   const [registroSenha, setRegistroSenha] = useState<string>("");
   const [confirmarSenha, setConfirmarSenha] = useState<string>("");
-
-  // Indicador de carregamento
   const [activeTab, setActiveTab] = useState<string>("login");
-
-  // Indicador de carregamento
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
-  // Estados para os alertas
   const [alertInfo, setAlertInfo] = useState<{
     show: boolean;
     type: "error" | "success";
@@ -65,7 +55,6 @@ export default function TabsDemo() {
       message,
     });
 
-    // Esconder o alerta após 5 segundos
     setTimeout(() => {
       setAlertInfo((prev) => ({ ...prev, show: false }));
     }, 5000);
@@ -116,7 +105,8 @@ export default function TabsDemo() {
           "Login bem-sucedido",
           "Login realizado com sucesso!"
         );
-        // Redirecionar o usuário ou atualizar o estado da aplicação
+
+        localStorage.setItem("authToken", data.session.access_token);
         router.push("/todo");
       }
     } catch (error) {
@@ -134,21 +124,8 @@ export default function TabsDemo() {
   const handleRegistro = async (): Promise<void> => {
     if (!validarRegistro()) return;
 
-    // Verificar se o email já está cadastrado
-    const emailJaCadastrado = await verificarEmailCadastrado(registroEmail);
-    if (emailJaCadastrado) {
-      showAlert(
-        "error",
-        "Email já cadastrado",
-        "Este email já está cadastrado."
-      );
-      return;
-    }
-
     try {
       setIsLoading(true);
-
-      // Fazer o registro
       const { error, data } = await serverHandleRegistro(
         registroEmail,
         registroSenha
@@ -168,8 +145,6 @@ export default function TabsDemo() {
         setRegistroEmail("");
         setRegistroSenha("");
         setConfirmarSenha("");
-
-        // Opcionalmente, mudar para a aba de login
         setActiveTab("login");
       }
     } catch (error) {

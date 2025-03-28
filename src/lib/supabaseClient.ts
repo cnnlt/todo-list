@@ -1,11 +1,18 @@
-import { createClient, SupabaseClient } from "@supabase/supabase-js";
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl: string = process.env.NEXT_PUBLIC_SUPABASE_URL || "";
-const supabaseKey: string = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || "";
-const supabaseServiceKey: string = process.env.SUPABASE_SERVICE_KEY || "";
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
 
-export const supabase: SupabaseClient = createClient(supabaseUrl, supabaseKey);
-export const supabaseAdmin: SupabaseClient = createClient(
-  supabaseUrl,
-  supabaseServiceKey
-);
+if (!supabaseUrl || !supabaseKey) {
+  throw new Error(
+    "Missing NEXT_PUBLIC_SUPABASE_URL or NEXT_PUBLIC_SUPABASE_ANON_KEY"
+  );
+}
+
+export const supabase = createClient(supabaseUrl, supabaseKey);
+
+// Optional: For admin operations
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_KEY;
+export const supabaseAdmin = supabaseServiceKey
+  ? createClient(supabaseUrl, supabaseServiceKey)
+  : null;

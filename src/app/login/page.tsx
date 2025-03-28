@@ -20,6 +20,7 @@ import {
   handleLogin as serverHandleLogin,
   handleRegistro as serverHandleRegistro,
 } from "@/app/actions/auth";
+import { supabase } from "@/lib/supabaseClient";
 
 export default function TabsDemo() {
   const router = useRouter();
@@ -99,15 +100,26 @@ export default function TabsDemo() {
 
       if (error) {
         showAlert("error", "Erro de login", "Erro ao fazer login: " + error);
-      } else {
+        return;
+      }
+
+      if (data?.session) {
+        // Store the session
+        await supabase.auth.setSession({
+          access_token: data.session.access_token,
+          refresh_token: data.session.refresh_token,
+        });
+
         showAlert(
           "success",
           "Login bem-sucedido",
           "Login realizado com sucesso!"
         );
 
-        localStorage.setItem("authToken", data.session.access_token);
-        router.push("/todo");
+        // Use router.replace instead of push to prevent back navigation
+        router.replace("/dashboard");
+      } else {
+        showAlert("error", "Erro de login", "Sessão inválida");
       }
     } catch (error) {
       showAlert(

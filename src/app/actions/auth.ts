@@ -1,37 +1,41 @@
 "use server";
 
-import {
-  login,
-  registrar,
-  verificarEmailCadastrado,
-} from "@/services/authService";
+import { supabase } from "@/lib/supabaseClient";
 
-// Função de Login
-export const handleLogin = async (email: string, senha: string) => {
+export async function handleLogin(email: string, password: string) {
   try {
-    const data = await login(email, senha);
-    return { data };
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) throw error;
+
+    return { error: null, data };
   } catch (error) {
+    console.error("Login error:", error);
     return {
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error.message,
+      data: null,
     };
   }
-};
+}
 
-// Função de Registro
-export const handleRegistro = async (email: string, senha: string) => {
+export async function handleRegistro(email: string, password: string) {
   try {
-    const emailJaCadastrado = await verificarEmailCadastrado(email);
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+    });
 
-    if (emailJaCadastrado) {
-      return { error: "Email já cadastrado." };
-    }
+    if (error) throw error;
 
-    const data = await registrar(email, senha);
-    return { data };
+    return { error: null, data };
   } catch (error) {
+    console.error("Registration error:", error);
     return {
-      error: error instanceof Error ? error.message : "Erro desconhecido",
+      error: error.message,
+      data: null,
     };
   }
-};
+}

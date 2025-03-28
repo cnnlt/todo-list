@@ -13,17 +13,20 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { AlertCircle, Cannabis, CheckCircle } from "lucide-react";
+import { Cannabis } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   handleLogin as serverHandleLogin,
   handleRegistro as serverHandleRegistro,
 } from "@/app/actions/auth";
 import { supabase } from "@/lib/supabaseClient";
+import { AlertMessage } from "@/components/AlertMessage";
+import { useAlertMessage } from "@/hooks/useAlertMessage";
 
 export default function TabsDemo() {
   const router = useRouter();
+  const { alertInfo, showAlert } = useAlertMessage();
+
   const [loginEmail, setLoginEmail] = useState<string>("");
   const [loginSenha, setLoginSenha] = useState<string>("");
   const [registroEmail, setRegistroEmail] = useState<string>("");
@@ -31,35 +34,6 @@ export default function TabsDemo() {
   const [confirmarSenha, setConfirmarSenha] = useState<string>("");
   const [activeTab, setActiveTab] = useState<string>("login");
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [alertInfo, setAlertInfo] = useState<{
-    show: boolean;
-    type: "error" | "success";
-    title: string;
-    message: string;
-  }>({
-    show: false,
-    type: "error",
-    title: "",
-    message: "",
-  });
-
-  // Função para mostrar alertas
-  const showAlert = (
-    type: "error" | "success",
-    title: string,
-    message: string
-  ) => {
-    setAlertInfo({
-      show: true,
-      type,
-      title,
-      message,
-    });
-
-    setTimeout(() => {
-      setAlertInfo((prev) => ({ ...prev, show: false }));
-    }, 5000);
-  };
 
   // Funções de validação
   const validarLogin = (): boolean => {
@@ -172,26 +146,7 @@ export default function TabsDemo() {
 
   return (
     <div className="flex justify-center items-center min-h-screen">
-      {alertInfo.show && (
-        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-md">
-          <Alert
-            variant={alertInfo.type === "error" ? "destructive" : "default"}
-            className={
-              alertInfo.type === "success"
-                ? "border-green-500 text-green-500"
-                : ""
-            }
-          >
-            {alertInfo.type === "error" ? (
-              <AlertCircle className="h-4 w-4" />
-            ) : (
-              <CheckCircle className="h-4 w-4" />
-            )}
-            <AlertTitle>{alertInfo.title}</AlertTitle>
-            <AlertDescription>{alertInfo.message}</AlertDescription>
-          </Alert>
-        </div>
-      )}
+      <AlertMessage {...alertInfo} />
 
       <div className="w-full w-[95%] sm:w-[75%] md:w-[50%] lg:w-[40%] xl:w-[30%]">
         <Tabs
